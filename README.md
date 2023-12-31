@@ -1,4 +1,3 @@
-
 # git Cheat Sheet
 
 by [Ben Nadel](https://www.bennadel.com) for _future Ben Nadel_
@@ -41,6 +40,7 @@ Future Ben, you are welcome!
 * [I want to keep my changes during conflict resolution.](#i-want-to-keep-my-changes-during-conflict-resolution)
 * [I want to find the commit that deleted a file.](#i-want-to-find-the-commit-that-deleted-a-file)
 * [I want to find the commit that deleted a file that contained a piece of code.](#i-want-to-find-the-commit-that-deleted-a-file-that-contained-a-piece-of-code)
+* [I want to reset the state of my local working copy to be the same as the remote repository.](#i-want-to-reset-the-state-of-my-local-working-copy-to-be-the-same-as-the-remote-repository)
 
 ## Use Cases
 
@@ -256,7 +256,7 @@ Sometimes, after you understand why reverted code was breaking, you want to brin
 git checkout master
 
 # Assuming that `head~~~` and `19e771` are the same commit, the following are
-# equivalent and will copy the changes in `19e771` to the `head` of the 
+# equivalent and will copy the changes in `19e771` to the `head` of the
 # current branch (as a new commit).
 git cherry-pick head~~~
 git cherry-pick 19e771
@@ -481,7 +481,7 @@ git merge --no-ff my-feature
 # merged your `my-feature` commits. No problem, just `--rebase` your local
 # `master` on the remote branch. This will move your local changes to the tip
 # of the `master` branch.
-git pull --rebase 
+git pull --rebase
 
 # Now that you've pulled-in the remote changes, you should be able to push
 # your updated `master` branch.
@@ -690,11 +690,11 @@ git rebase --continue
 ```
 
 > **ASIDE**: Using `--theirs` in a `rebase` can seem confusing because you are already in "your" feature branch. As such, it would seem logical that your version of the code would be targeted with `--ours`, not `--theirs`. However, a `rebase` operates _kind of like_ a series of `cherry-pick` operations. You can think of a `rebase` as doing the following:
-> 
+>
 > * Check-out an earlier, common commit between your feature branch and the target branch.
 > * Cherry-pick your feature branch commits onto the earlier commit.
 > * Replace your feature branch with this temporary branch
-> 
+>
 > With this mental model, "your" version - targeted using `--theirs` - is the version being cherry-picked into the "current context" (the temporary branch).
 
 ### I want to find the commit that deleted a file.
@@ -788,3 +788,17 @@ git log -G '\bisProcessed\b' --diff-filter=D --name-only --oneline
 # changes made in the given commit.
 git show aef037
 ```
+
+### I want to reset the state of my local working copy to be the same as the remote repository
+
+If your branch is completely and utterly broken and you need to make your workspace match the remote repository, in a "git-approved" way, use the following.
+**BEWARE:** These are destructive and unrecoverable actions.
+
+```sh
+# get the lastest state of origin
+git fetch origin
+git checkout master
+git reset --hard origin/master
+# delete untracked files and directories
+git clean -d --force
+# repeat checkout/reset/clean for each broken branch
